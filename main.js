@@ -265,12 +265,12 @@ function quoteURL() { const u = (lang === 'ja' ? QUOTE.ja : QUOTE.en) || ''; ret
 function xIntent(text, url) { const q = quoteURL(); return 'https://x.com/intent/post?text=' + encodeURIComponent(q ? text + '\n' + url : text) + '&url=' + encodeURIComponent(q || url); }
 $('xBtn').onclick = () => { const u = xIntent(postText(), GAME_URL); const w = window.open(u, '_blank'); if (!w) location.href = u; };
 
-// ===== ランキング（Firebase の puchi の下） =====
+// ===== ランキング（Firebase：ft-blue の puchi の下） =====
 const FBS = {
  red: { apiKey: 'AIzaSyBCzVyblBmfNQq4XdPHdQppE94gyiYxDkA', databaseURL: 'https://ft-red-default-rtdb.asia-southeast1.firebasedatabase.app' },
  blue: { apiKey: 'AIzaSyB2iLUuAyxSJ45RewGrbyLg0sYLsC7njIo', databaseURL: 'https://ft-blue-default-rtdb.asia-southeast1.firebasedatabase.app' }
 };
-const FB = FBS.red;
+const FB = FBS.blue;
 const NG = ['ちんこ', 'ちんぽ', 'まんこ', 'せっくす', 'セックス', 'きんたま', 'レイプ', '死ね', 'しね', '殺す', 'ころす', 'ガイジ', 'キチガイ', 'きちがい', 'ニガー', 'チョン', '支那', 'fuck', 'shit', 'bitch', 'cunt', 'dick', 'pussy', 'nigger', 'nigga', 'faggot', 'retard', 'whore', 'slut', 'rape', 'porn', 'nazi', 'hitler', '씨발', '시발', '병신', '좆', '肏', '屄', '屌', '幹你'];
 const badName = s => { const n = s.normalize('NFKC').toLowerCase().replace(/[\s・._\-ー〜~!！?？*＊]/g, ''); return NG.some(w => n.includes(w.normalize('NFKC').toLowerCase())); };
 async function fetchR(url, opt) { let err; for (let i = 0; i < 3; i++) { try { return await fetch(url, opt); } catch (e) { err = e; await new Promise(r => setTimeout(r, 500 * (i + 1))); } } throw err; }
