@@ -291,8 +291,14 @@ $('prBack').onclick = e => { e.stopPropagation(); showTitle(); };
 $('prGo').onclick = e => { e.stopPropagation(); begin(); };
 
 // 押す（画面のどこでも・スペースキー）
-$('tap').addEventListener('pointerdown', e => { e.preventDefault(); ac(); tap(e.timeStamp); });
-addEventListener('keydown', e => { if (e.repeat) return; if ((e.code === 'Space' || e.code === 'Enter') && (mode === 'count' || mode === 'play' || mode === 'practice')) { e.preventDefault(); ac(); tap(e.timeStamp); } });
+// 押す：指がふれた瞬間に反応させる。スマホは touchstart（ふれた瞬間）を使い、同じ指の pointerdown は二重にしない
+// （端末によっては pointerdown が指を離すまで遅れることがあるため）
+let lastTouch = -1e9;
+const evT = e => { const n = performance.now(), ts = e.timeStamp; return (ts > 0 && Math.abs(n - ts) < 1000) ? ts : n; };
+$('tap').addEventListener('touchstart', e => { e.preventDefault(); const ts = evT(e); lastTouch = performance.now(); ac(); tap(ts); }, { passive: false });
+$('tap').addEventListener('pointerdown', e => { e.preventDefault(); if (e.pointerType === 'touch' || performance.now() - lastTouch < 800) return; ac(); tap(evT(e)); });
+$('tap').addEventListener('touchend', e => e.preventDefault(), { passive: false });
+addEventListener('keydown', e => { if (e.repeat) return; if ((e.code === 'Space' || e.code === 'Enter') && (mode === 'count' || mode === 'play' || mode === 'practice')) { e.preventDefault(); ac(); tap(evT(e)); } });
 document.addEventListener('visibilitychange', () => { if (document.hidden && mode === 'practice') stopMetro(); else if (!document.hidden && mode === 'practice') startMetro(); });
 
 // ===== 結果 =====
@@ -435,4 +441,4 @@ function stillScene(w, h, sq) { R.setPixelRatio(1); R.setSize(w, h, false); CAM.
 if (OGP) { document.body.style.width = '1200px'; document.body.style.height = '630px'; $('fx').hidden = true; $('ogpT').hidden = false; $('ogpT').innerHTML = '<b>' + esc(t('ogp1')) + '</b><i>' + esc(t('ogp2')) + '</i><s>' + esc(t('ogp3')) + '</s>'; stillScene(1200, 630, false); window.__ready = 1; }
 else if (ICON) { $('fx').hidden = true; stillScene(512, 512, true); window.__ready = 1; }
 else { resize(); showTitle(); requestAnimationFrame(loop); }
-window.__PP = { get mode() { return mode }, get G() { return G }, get seq() { return seq }, tap, begin, practice, playUpdate, makeImage };
+window.__PP = { get mode() { return mode }, get G() { return G }, get seq() { return seq }, tap, begin, practice, playUpdate, makeImage, showResult };
